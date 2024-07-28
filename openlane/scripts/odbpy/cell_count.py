@@ -20,9 +20,9 @@ from collections import Counter
 from reader import click, click_odb, OdbReader, Table, rich
 
 
-def fill_table(frequency: dict, table: Table):
-    sorted_freq = {k: frequency[k] for k in sorted(frequency)}
-    for key, value in sorted_freq.items():
+def fill_table(count: dict, table: Table):
+    sorted_count = {k: count[k] for k in sorted(count)}
+    for key, value in sorted_count.items():
         table.add_row(key, str(value))
 
 
@@ -43,7 +43,7 @@ def main(
     pattern = r"^(\S+)__(\S+)_+\d+"
     compiled_pattern = re.compile(pattern)
 
-    cell_frequency_table = Table(
+    cell_count_table = Table(
         "Cell",
         "Count",
         title="Cell Count",
@@ -54,7 +54,7 @@ def main(
         title="SCL Count",
     )
     cell_type_table = Table(
-        "Cell Type", "Count", title="SCL Type Count", title_justify="center"
+        "Type", "Count", title="SCL Type Count", title_justify="center"
     )
     buffer_table = Table(
         "Buffer",
@@ -62,43 +62,41 @@ def main(
         title="Buffer Count",
     )
 
-    cell_frequency = {}
-    std_cell_library_freq = {}
-    cell_type_frequency = {}
+    cell_count = {}
+    std_cell_library_count = {}
+    cell_type_count = {}
     cells = [instance.getMaster().getName() for instance in block.getInsts()]
     buffers = open(buffer_list).read().split()
-    buffer_frequency = Counter([cell for cell in cells if cell in buffers])
-    cell_frequency = Counter(cells)
+    buffer_count = Counter([cell for cell in cells if cell in buffers])
+    cell_count = Counter(cells)
 
-    for cell in cell_frequency.keys():
+    for cell in cell_count.keys():
         result = compiled_pattern.findall(cell)
         if result:
             std_cell_library, cell_type = result[0]
             cell_type_key = f"{std_cell_library}__{cell_type}"
-            if std_cell_library_freq.get(std_cell_library) is not None:
-                std_cell_library_freq[std_cell_library] += int(cell_frequency[cell])
+            if std_cell_library_count.get(std_cell_library) is not None:
+                std_cell_library_count[std_cell_library] += int(cell_count[cell])
             else:
-                std_cell_library_freq[std_cell_library] = int(cell_frequency[cell])
+                std_cell_library_count[std_cell_library] = int(cell_count[cell])
 
-            if cell_type_frequency.get(cell_type_key) is not None:
-                cell_type_frequency[cell_type_key] += int(cell_frequency[cell])
+            if cell_type_count.get(cell_type_key) is not None:
+                cell_type_count[cell_type_key] += int(cell_count[cell])
             else:
-                cell_type_frequency[cell_type_key] = int(cell_frequency[cell])
+                cell_type_count[cell_type_key] = int(cell_count[cell])
 
     fill_table(
-        {k: cell_type_frequency[k] for k in sorted(cell_type_frequency)},
+        {k: cell_type_count[k] for k in sorted(cell_type_count)},
         cell_type_table,
     )
-    fill_table({k: buffer_frequency[k] for k in sorted(buffer_frequency)}, buffer_table)
+    fill_table({k: buffer_count[k] for k in sorted(buffer_count)}, buffer_table)
+    fill_table({k: cell_count[k] for k in sorted(cell_count)}, cell_count_table)
     fill_table(
-        {k: cell_frequency[k] for k in sorted(cell_frequency)}, cell_frequency_table
-    )
-    fill_table(
-        {k: std_cell_library_freq[k] for k in sorted(std_cell_library_freq)},
+        {k: std_cell_library_count[k] for k in sorted(std_cell_library_count)},
         std_cell_library_table,
     )
 
-    rich.print(cell_frequency_table)
+    rich.print(cell_count_table)
     rich.print(cell_type_table)
     rich.print(std_cell_library_table)
     rich.print(buffer_table)

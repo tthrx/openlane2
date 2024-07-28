@@ -853,13 +853,13 @@ class HeuristicDiodeInsertion(CompositeStep):
 @Step.factory.register()
 class CountCells(OdbpyStep):
     id = "Odb.CountCells"
-    name = "Count Cells"
+    name = "Group and Count Cells"
 
     def get_script_path(self):
         return os.path.join(
             get_script_dir(),
             "odbpy",
-            "cell_frequency.py",
+            "cell_count.py",
         )
 
     def get_buffer_list_file(self):
@@ -873,7 +873,7 @@ class CountCells(OdbpyStep):
 
         env_copy = env.copy()
         lib_list = self.toolbox.filter_views(self.config, self.config["LIB"])
-        env_copy["_PNR_LIBS"] = TclStep.value_to_tcl(lib_list)
+        env_copy["_LIBS"] = TclStep.value_to_tcl(lib_list)
         super().run_subprocess(
             ["openroad", "-no_splash", "-exit", self.get_buffer_list_script()],
             env=env_copy,
