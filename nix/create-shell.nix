@@ -39,7 +39,7 @@
   );
   openlane-env-sitepackages = "${openlane-env}/${openlane-env.sitePackages}";
   pluginIncludedTools = lib.lists.flatten (map (n: n.includedTools) openlane-plugins);
-  prompt = ''\[\033[1;32m\][nix-shell:\w]\$\[\033[0m\] '';
+  prompt = ''\[\033[1;32m\][nix-shell:\w]\n\$\[\033[0m\] '';
   packages =
     [
       openlane-env

@@ -72,27 +72,39 @@ def main(reader, corner, checks_report):
         for line in report_content[start_index:end_index]
         if re.match(r" \S+", line)
     ]
+    nets_with_wire = [net for net in nets if filter_net(net)]
     print("Reported nets:")
     pprint.pprint(reported_nets)
-    connected_nets = [
+    unannotated_with_wire = [
         Net(
             name=net.getName(),
             bterms=[
                 BTerm(bterm.getName(), bterm.getIoType()) for bterm in net.getBTerms()
             ],
         )
-        for net in nets
-        if (net.getName() in reported_nets) and filter_net(net)
+        for net in nets_with_wire
+        if (net.getName() in reported_nets)
     ]
     print("Filtered nets:")
-    pprint.pprint(connected_nets)
+    pprint.pprint(unannotated_with_wire)
     utl.metric_integer(
         f"timing__unannotated_net__count__corner:{corner}", len(reported_nets)
     )
     utl.metric_integer(
         f"timing__unannotated_net_filtered__count__corner:{corner}",
-        len(connected_nets),
+        len(unannotated_with_wire),
     )
+    utl.metric_float(
+        f"timing__unannotated_net__percent__corner:{corner}",
+        round(len(reported_nets) / len(nets) * 100, 2),
+    )
+    utl.metric_float(
+        f"timing__unannotated_net_filtered__percent__corner:{corner}",
+        round(len(unannotated_with_wire) / len(nets_with_wire) * 100, 2),
+    )
+    pprint.pprint(f"Nets: {len(nets)}")
+    pprint.pprint(f"Nets with wire: {len(nets_with_wire)}")
+    pprint.pprint(f"Unannotated with wire: {len(unannotated_with_wire)}")
     print("done")
 
 
