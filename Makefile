@@ -23,7 +23,7 @@ docker-image:
 
 .PHONY: docs
 docs:
-	$(MAKE) -C docs html
+	$(MAKE) -C docs pdf
 
 .PHONY: host-docs
 host-docs:
