@@ -12,5 +12,5 @@ build:
   commands:
     - pip3 install .
     - pip3 install -r ./docs/requirements.txt
-    - cd docs && python3 -m sphinx.cmd.build -M tex "source" "_build"
+    - cd docs && python3 -m sphinx.cmd.build -b latex "source" "_build"
     - mv docs/_build _readthedocs
